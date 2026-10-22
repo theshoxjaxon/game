@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TypeClash — Real-Time Multiplayer Typing Royale</title>
+  <meta name="description" content="A real-time multiplayer typing speed game combining Monkeytype mechanics with Blooket-style visual racing.">
+  
+  <!-- Modern Typography from Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20width=%22100%22%20height=%22100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Navigation / Brand Bar -->
+    <header class="navbar">
+      <div class="brand">
+        <span class="brand-icon">⚡</span>
+        <div class="brand-text">
+          <h1 class="logo-title">TypeClash</h1>
+          <span class="logo-sub">Multiplayer Typing Royale</span>
+        </div>
+      </div>
+
+      <div class="nav-right">
+        <!-- Room Status Badge (Hidden when on home screen) -->
+        <div id="nav-room-badge" class="nav-badge hidden">
+          <span class="pulse-dot"></span>
+          <span>Room: <strong id="nav-pin-display">------</strong></span>
+        </div>
+
+        <!-- Sound FX Toggle Button -->
+        <button id="sound-toggle-btn" class="icon-btn" title="Toggle Sound Effects" aria-label="Toggle Sound Effects">
+          <span id="sound-icon">🔊</span>
+          <span class="btn-text">Sound ON</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Views -->
+    <main class="main-content">
+
+      <!-- ================= VIEW 1: HOME (Lobby Join / Create) ================= -->
+      <section id="view-home" class="view active">
+        <div class="hero-section">
+          <div class="hero-badge">🏁 Real-Time WebSockets Engine</div>
+          <h2 class="hero-title">Type Fast. Race Live. <span class="gradient-text">Dominate the Track.</span></h2>
+          <p class="hero-desc">
+            A real-time hybrid of <strong>Monkeytype</strong> precision typing and <strong>Blooket</strong> arcade racing. 
+            Host a room, invite friends, and watch avatars sprint along the track in real time!
+          </p>
+        </div>
+
+        <div class="setup-card">
+          <!-- Step 1: Identity (Avatar + Name) -->
+          <div class="profile-setup">
+            <label class="section-label">1. Choose Your Racer Avatar</label>
+            <div class="avatar-selector" id="avatar-selector">
+              <button type="button" class="avatar-option selected" data-avatar="⚡">⚡</button>
+              <button type="button" class="avatar-option" data-avatar="🦊">🦊</button>
+              <button type="button" class="avatar-option" data-avatar="🚀">🚀</button>
+              <button type="button" class="avatar-option" data-avatar="🐯">🐯</button>
+              <button type="button" class="avatar-option" data-avatar="🤖">🤖</button>
+              <button type="button" class="avatar-option" data-avatar="🐉">🐉</button>
+              <button type="button" class="avatar-option" data-avatar="🦄">🦄</button>
+              <button type="button" class="avatar-option" data-avatar="🛸">🛸</button>
+              <button type="button" class="avatar-option" data-avatar="🐱">🐱</button>
+              <button type="button" class="avatar-option" data-avatar="🏎️">🏎️</button>
+            </div>
+
+            <div class="name-input-group">
+              <label for="player-name-input" class="section-label">2. Enter Nickname</label>
+              <div class="input-with-action">
+                <input type="text" id="player-name-input" maxlength="15" placeholder="SpeedyTyper" spellcheck="false" autocomplete="off">
+                <button type="button" id="random-name-btn" class="secondary-btn" title="Random Name">🎲 Random</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Create or Join Dual Cards -->
+          <div class="action-grid">
+            <!-- Create Room Card -->
+            <div class="action-card create-card">
+              <div class="card-icon">👑</div>
+              <h3>Host New Race</h3>
+              <p>Create a private room, get a 6-digit PIN, and challenge your friends.</p>
+              <button id="create-room-btn" class="primary-btn glow-btn">
+                <span>Create Room</span>
+                <span class="arrow">→</span>
+              </button>
+            </div>
+
+            <div class="divider-or">
+              <span>OR</span>
+            </div>
+
+            <!-- Join Room Card -->
+            <div class="action-card join-card">
+              <div class="card-icon">🎮</div>
+              <h3>Join a Match</h3>
+              <p>Enter the 6-digit PIN code shared by your race host.</p>
+              <div class="pin-input-wrap">
+                <input type="text" id="join-pin-input" maxlength="6" placeholder="000000" inputmode="numeric" pattern="[0-9]*">
+                <button id="join-room-btn" class="secondary-accent-btn">
+                  <span>Join Race</span>
+                </button>
+              </div>
+              <p id="join-error-msg" class="error-msg hidden"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feature highlights banner -->
+        <div class="features-banner">
+          <div class="feature-item">
+            <span class="f-icon">⌨️</span>
+            <div>
+              <h4>Monkeytype Mechanics</h4>
+              <p>Character-by-character live validation with smooth caret & instant WPM/accuracy tracking.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <span class="f-icon">🏎️</span>
+            <div>
+              <h4>Blooket-Style Race</h4>
+              <p>Real-time visual track broadcasting every racer's position via WebSockets.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <span class="f-icon">🏆</span>
+            <div>
+              <h4>Live Podium & Stats</h4>
+              <p>Top 3 animated podium, celebratory confetti, and comprehensive performance breakdowns.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ================= VIEW 2: LOBBY (Waiting Room) ================= -->
+      <section id="view-lobby" class="view">
+        <div class="lobby-container">
+          <div class="lobby-header-card">
+            <div class="lobby-pin-block">
+              <span class="pin-label">ROOM PIN CODE</span>
+              <div class="pin-display-group">
+                <span id="lobby-pin" class="pin-code">000000</span>
+                <button id="copy-pin-btn" class="copy-btn" title="Copy Room PIN">
+                  📋 Copy Code
+                </button>
+                <button id="copy-link-btn" class="copy-btn" title="Copy Invite Link">
+                  🔗 Share Link
+                </button>
+              </div>
+              <span id="copy-toast" class="copy-toast hidden">Copied to clipboard!</span>
+            </div>
+
+            <div class="lobby-stats-block">
+              <div class="player-count-badge">
+                <span class="users-icon">👥</span>
+                <span id="lobby-player-count">1</span> Player(s) Ready
+              </div>
+              <span class="lobby-status-text">Waiting for race to begin</span>
+            </div>
+          </div>
+
+          <!-- Player Cards Grid -->
+          <div class="players-grid-section">
+            <h3 class="section-title">Joined Racers</h3>
+            <div id="players-list-grid" class="players-grid">
+              <!-- Dynamically populated player cards -->
+            </div>
+          </div>
+
+          <!-- Quick Reaction Emojis -->
+          <div class="reactions-bar">
+            <span class="reaction-label">Send Cheer:</span>
+            <div class="reaction-buttons">
+              <button type="button" class="react-btn" data-emoji="🔥">🔥</button>
+              <button type="button" class="react-btn" data-emoji="🚀">🚀</button>
+              <button type="button" class="react-btn" data-emoji="👑">👑</button>
+              <button type="button" class="react-btn" data-emoji="🎉">🎉</button>
+              <button type="button" class="react-btn" data-emoji="💯">💯</button>
+              <button type="button" class="react-btn" data-emoji="⚡">⚡</button>
+            </div>
+          </div>
+
+          <!-- Lobby Footer Controls -->
+          <div class="lobby-controls">
+            <button id="leave-lobby-btn" class="danger-outline-btn">
+              <span>✕ Leave Room</span>
+            </button>
+
+            <!-- Host only start button -->
+            <div id="host-start-container">
+              <button id="start-game-btn" class="primary-btn glow-btn pulse-glow">
+                <span>Start Race Now 🚀</span>
+              </button>
+            </div>
+
+            <!-- Guest waiting notice -->
+            <div id="guest-waiting-container" class="waiting-box hidden">
+              <div class="spinner"></div>
+              <span>Waiting for the host to start the race...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating reaction particles container -->
+        <div id="floating-reactions-layer" class="reactions-layer"></div>
+      </section>
+
+
+      <!-- ================= VIEW 3: IN-GAME (Race Track + Monkeytype Area) ================= -->
+      <section id="view-game" class="view">
+        <!-- Live Blooket-Style Race Track -->
+        <div class="race-track-wrapper">
+          <div class="track-header">
+            <div class="track-title">
+              <span class="track-indicator">● LIVE</span>
+              <span>RACE TRACK</span>
+            </div>
+            <div class="finish-line-badge">
+              <span>🏁 FINISH LINE</span>
+            </div>
+          </div>
+
+          <div id="race-lanes-container" class="race-lanes">
+            <!-- Dynamic lanes populated for each player -->
+          </div>
+        </div>
+
+        <!-- Live Typing HUD (WPM, Accuracy, Progress, Timer) -->
+        <div class="game-hud">
+          <div class="hud-card">
+            <span class="hud-label">LIVE WPM</span>
+            <span id="hud-wpm" class="hud-value accent">0</span>
+          </div>
+
+          <div class="hud-card">
+            <span class="hud-label">ACCURACY</span>
+            <span id="hud-accuracy" class="hud-value">100%</span>
+          </div>
+
+          <div class="hud-card">
+            <span class="hud-label">PROGRESS</span>
+            <span id="hud-progress" class="hud-value">0%</span>
+            <div class="hud-mini-bar">
+              <div id="hud-progress-fill" class="hud-mini-bar-fill" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div class="hud-card">
+            <span class="hud-label">TIME</span>
+            <span id="hud-timer" class="hud-value">00:00</span>
+          </div>
+        </div>
+
+        <!-- Monkeytype-Style Typing Container -->
+        <div class="typing-container-wrapper" id="typing-area-box">
+          <!-- Unfocus notice overlay -->
+          <div id="unfocus-notice" class="unfocus-notice hidden">
+            <span>🖱️ Click here or press any key to focus typing</span>
+          </div>
+
+          <!-- Words display with live smooth caret -->
+          <div class="words-container" id="words-container" tabindex="0">
+            <div id="caret" class="caret"></div>
+            <!-- Words and letters injected via JavaScript -->
+          </div>
+
+          <!-- Hidden input for raw keyboard capture -->
+          <input type="text" id="typing-hidden-input" class="hidden-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        </div>
+
+        <!-- Race status sub-bar -->
+        <div class="game-subbar">
+          <div class="subbar-info">
+            <span id="finish-status-tag" class="status-tag">Type the passage accurately to cross the finish line!</span>
+          </div>
+          <div id="host-end-race-container" class="hidden">
+            <button id="host-force-end-btn" class="secondary-btn small-btn">End Race Early</button>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ================= VIEW 4: LEADERBOARD / PODIUM ================= -->
+      <section id="view-leaderboard" class="view">
+        <!-- Confetti Canvas -->
+        <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
+
+        <div class="leaderboard-container">
+          <div class="results-header">
+            <div class="trophy-badge">🏆</div>
+            <h2 class="results-title">Race Complete!</h2>
+            <p class="results-subtitle">Here are the final standings and speed statistics.</p>
+          </div>
+
+          <!-- 3D Style Podium for Top 3 Racers -->
+          <div class="podium-section" id="podium-container">
+            <!-- 2nd Place (Silver) -->
+            <div class="podium-column silver-podium" id="podium-rank-2">
+              <div class="podium-avatar" id="podium-avatar-2">🥈</div>
+              <div class="podium-name" id="podium-name-2">-</div>
+              <div class="podium-wpm" id="podium-wpm-2">0 WPM</div>
+              <div class="podium-block">2nd</div>
+            </div>
+
+            <!-- 1st Place (Gold Winner) -->
+            <div class="podium-column gold-podium" id="podium-rank-1">
+              <div class="crown-icon">👑</div>
+              <div class="podium-avatar" id="podium-avatar-1">🥇</div>
+              <div class="podium-name" id="podium-name-1">-</div>
+              <div class="podium-wpm" id="podium-wpm-1">0 WPM</div>
+              <div class="podium-block">1st</div>
+            </div>
+
+            <!-- 3rd Place (Bronze) -->
+            <div class="podium-column bronze-podium" id="podium-rank-3">
+              <div class="podium-avatar" id="podium-avatar-3">🥉</div>
+              <div class="podium-name" id="podium-name-3">-</div>
+              <div class="podium-wpm" id="podium-wpm-3">0 WPM</div>
+              <div class="podium-block">3rd</div>
+            </div>
+          </div>
+
+          <!-- Full Standings Table -->
+          <div class="standings-table-card">
+            <h3 class="table-title">Full Racer Standings</h3>
+            <div class="table-responsive">
+              <table class="standings-table">
+                <thead>
+                  <tr>
+                    <th>Rank</th>
+                    <th>Racer</th>
+                    <th>Speed (WPM)</th>
+                    <th>Accuracy</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="standings-tbody">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Leaderboard Action Buttons -->
+          <div class="leaderboard-actions">
+            <div id="host-rematch-container">
+              <button id="rematch-btn" class="primary-btn glow-btn">
+                <span>Play Again (Rematch) 🔄</span>
+              </button>
+            </div>
+            <div id="guest-rematch-container" class="hidden">
+              <div class="waiting-rematch-box">
+                <div class="spinner-small"></div>
+                <span>Waiting for the host to start a rematch...</span>
+              </div>
+            </div>
+            <button id="return-home-btn" class="secondary-btn">
+              <span>Return to Home 🏠</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Fullscreen Countdown Overlay -->
+    <div id="countdown-overlay" class="countdown-modal hidden">
+      <div class="countdown-content">
+        <span class="countdown-sub">GET READY TO RACE!</span>
+        <div id="countdown-number" class="countdown-digits">3</div>
+        <p class="countdown-tip">Keep your fingers on home row keys...</p>
+      </div>
+    </div>
+
+    <!-- Notification Toast Element -->
+    <div id="toast" class="toast hidden"></div>
+  </div>
+
+  <!-- Socket.io Client library provided by server -->
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- Main Game Logic -->
+  <script src="game.js" type="module"></script>
+</body>
+</html>

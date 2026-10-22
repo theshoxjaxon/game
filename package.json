@@ -1,0 +1,15 @@
+{
+  "name": "typerush-multiplayer",
+  "version": "1.0.0",
+  "description": "Real-time multiplayer typing game (Monkeytype x Blooket)",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  }
+}
